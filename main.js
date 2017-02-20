@@ -34,21 +34,27 @@ function glMain() {
 
     var fonts_select = document.getElementById("fonts");
     fonts_select.addEventListener('input', update_text, false);
+    fonts_select.onchange = update_text;
 
     var font_size_input = document.getElementById("font_size");
     font_size_input.addEventListener('input', update_text, false);
+    font_size_input.onchange = update_text;
 
     var font_hinting_input = document.getElementById("font_hinting");
     font_hinting_input.addEventListener('input', update_text, false);
+    font_hinting_input.onchange = update_text;
 
     var subpixel_input = document.getElementById("subpixel");
     subpixel_input.addEventListener('input', update_text, false);
+    subpixel_input.onchange = update_text;
 
     var font_color_input = document.getElementById("font_color");
     font_color_input.addEventListener('input', update_text, false);
+    font_color_input.onchange = update_text;
 
     var bg_color_input = document.getElementById("background_color");
     bg_color_input.addEventListener('input', update_text, false);
+    bg_color_input.onchange = update_text;
 
     var textarea = document.getElementById("text");
     textarea.value = `To be, or not to be--that is the question:
