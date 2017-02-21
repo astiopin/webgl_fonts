@@ -28,6 +28,7 @@ function createProgram( gl, vertex, fragment, attribs ) {
     gl.compileShader( vshader );
 
     var vok = gl.getShaderParameter( vshader, gl.COMPILE_STATUS );
+;    
     if ( !vok ) {
         throw "unable to compile vertex shader:" + gl.getShaderInfoLog( vshader );
     }
@@ -43,6 +44,11 @@ function createProgram( gl, vertex, fragment, attribs ) {
 
     var program = gl.createProgram();
 
+    for ( var i = 0; i < attribs.length; ++i ) {
+        var a = attribs[ i ];
+        gl.bindAttribLocation( program, a.loc, a.name );
+    }
+
     gl.attachShader( program, vshader );
     gl.attachShader( program, fshader );
 
@@ -52,16 +58,10 @@ function createProgram( gl, vertex, fragment, attribs ) {
     if ( !pok ) {
         throw "unable to link program: " + gl.getProgramInfoLog( program );
     }
-    
-    for ( var i = 0; i < attribs.length; ++i ) {
-        var a = attribs[ i ];
-        gl.bindAttribLocation( program, a.loc, a.name );
-    }
 
     var unf_length = gl.getProgramParameter( program, gl.ACTIVE_UNIFORMS );
 
     var res = { id : program, uniforms : [] };
-
     
     function make_unf_set( name, location, type ) {
         if ( type == gl.FLOAT ) {
@@ -205,16 +205,25 @@ function loadTexture( gl, filename, format = gl.RGBA, generate_mipmap = true ) {
     return res;
 }
 
-function setTexImage( gl, image, tex, format, generate_mipmap ) {
+function setTexImage( gl, image, tex, format, generate_mipmap, nearest_filtering ) {
     gl.bindTexture( gl.TEXTURE_2D, tex );
     gl.texImage2D( gl.TEXTURE_2D, 0, format, format, gl.UNSIGNED_BYTE, image );
-    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR );
+
+    if ( !nearest_filtering ) {
+        gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR );
+    } else {
+        gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
+    }
 
     if ( generate_mipmap ) {
         gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR );
         gl.generateMipmap( gl.TEXTURE_2D );
     } else {
-        gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR );
+        if ( !nearest_filtering ) {
+            gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR );
+        } else {
+            gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST );
+        }
     }
     gl.bindTexture( gl.TEXTURE_2D, null );
 }

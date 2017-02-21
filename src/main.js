@@ -79,13 +79,13 @@ That makes calamity of so long life.`
     // GL stuff
     
     var canvas = document.getElementById('glcanvas');
-    var gl = canvas.getContext('experimental-webgl', { premultipliedAlpha: false,  alpha: false  });
+    var gl = canvas.getContext('experimental-webgl', { premultipliedAlpha: false,  alpha: false  } );
     
     // Loading SDF font images. Resulting textures should NOT be mipmapped!
     
     roboto_font.tex        = loadTexture( gl, "fonts/roboto.png", gl.LUMINANCE, false );
     roboto_bold_font.tex   = loadTexture( gl, "fonts/roboto-bold.png", gl.LUMINANCE, false );    
-    ubuntu_font.tex        = loadTexture( gl, "fonts/ubuntu.png", gl.LUMINANCE, false );
+    ubuntu_font.tex        = loadTexture( gl, "fonts/ubuntu.png", gl.LUMINANCE, false, true );
     ubuntu_bold_font.tex   = loadTexture( gl, "fonts/ubuntu-bold.png", gl.LUMINANCE, false );
     dejavu_font.tex        = loadTexture( gl, "fonts/dejavu-serif.png", gl.LUMINANCE, false );
     dejavu_italic_font.tex = loadTexture( gl, "fonts/dejavu-serif-italic.png", gl.LUMINANCE, false );        
@@ -143,14 +143,14 @@ That makes calamity of so long life.`
             vcount = str_res.array_pos / ( attribs[0].stride / 4 /*size of float*/ );
 
             gl.bindBuffer( gl.ARRAY_BUFFER, vertex_buffer );
-            gl.bufferData( gl.ARRAY_BUFFER, vertex_array, gl.DYNAMIC_DRAW );
+            gl.bufferSubData( gl.ARRAY_BUFFER, 0, vertex_array );
             gl.bindBuffer( gl.ARRAY_BUFFER, null );
 
             font_hinting = font_hinting_input.checked ? 1.0 : 0.0;
             subpixel = subpixel_input.checked ? 1.0 : 0.0;
             
             do_update = false;
-        }
+        }        
 
         // Transformation matrix. 3x3 ortho.
         // Canvas size, [0,0] is at the text rect's top left corner, Y goes up.
@@ -196,7 +196,7 @@ That makes calamity of so long life.`
         
         gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
         bindAttribs( gl, attribs );
-        
+
         gl.drawArrays(gl.TRIANGLES, 0, vcount);
         
         requestAnimationFrame( render );   
