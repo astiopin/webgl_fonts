@@ -1,3 +1,4 @@
+var fragCode=`
 /*
  * Copyright (c) 2017 Anton Stepin astiopin@gmail.com
  *
@@ -19,9 +20,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- */                  
+ */  
 
-var fragCode=`
 precision mediump float;
 
 uniform sampler2D font_tex;

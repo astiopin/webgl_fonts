@@ -1,3 +1,4 @@
+var vertCode = `
 /*
  * Copyright (c) 2017 Anton Stepin astiopin@gmail.com
  *
@@ -22,7 +23,6 @@
  */
 
 
-var vertCode = `
 attribute vec2  pos;        // Vertex position
 attribute vec2  tex0;       // Tex coord
 attribute float sdf_size;   // Signed distance field size in screen pixels
