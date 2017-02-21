@@ -70,7 +70,9 @@ void main() {
     float sdf_east  = texture2D( font_tex, tc0 + vec2( sdf_texel, 0.0 ) ).r;
 
     // Estimating stroke direction by the distance field gradient vector
-    vec2  grad  = normalize( vec2( sdf_east - sdf, sdf_north - sdf ) + vec2( 1e-5 ) /* Beware the NaN */ );
+    vec2  sgrad     = vec2( sdf_east - sdf, sdf_north - sdf );
+    float sgrad_len = max( length( sgrad ), 1.0 / 128.0 );
+    vec2  grad      = sgrad / vec2( sgrad_len );
     float vgrad = abs( grad.y ); // 0.0 - vertical stroke, 1.0 - horizontal one
     
     float horz_scale  = 1.1; // Blurring vertical strokes along the X axis a bit
