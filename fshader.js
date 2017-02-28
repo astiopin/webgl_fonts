@@ -39,8 +39,8 @@ varying float sdf_texel;
 /*
  *  Subpixel coverage calculation
  *    
- *  v - edge slope                         triplet
- *  a - pixel coverage                     coverage
+ *  v - edge slope    -1.0 to 1.0          triplet
+ *  a - pixel coverage 0.0 to 1.0          coverage
  *                                       
  *      |<- glyph edge                      R  G  B
  *  +---+---+                             +--+--+--+
@@ -80,31 +80,37 @@ vec3 subpixel( float v, float a ) {
 
 
 void main() {
-    // Sampling the texture
+    // Sampling the texture, L pattern
     float sdf       = texture2D( font_tex, tc0 ).r;
     float sdf_north = texture2D( font_tex, tc0 + vec2( 0.0, sdf_texel ) ).r;
     float sdf_east  = texture2D( font_tex, tc0 + vec2( sdf_texel, 0.0 ) ).r;
 
-    // Estimating stroke direction by the distance field gradient
-    vec2  grad  = normalize( vec2( sdf_east - sdf, sdf_north - sdf ) + vec2( 1e-5 ) /* Beware the NaNs */ );
+    // Estimating stroke direction by the distance field gradient vector
+    vec2  sgrad     = vec2( sdf_east - sdf, sdf_north - sdf );
+    float sgrad_len = max( length( sgrad ), 1.0 / 128.0 );
+    vec2  grad      = sgrad / vec2( sgrad_len );
     float vgrad = abs( grad.y ); // 0.0 - vertical stroke, 1.0 - horizontal one
     
-    float horz_scale = 1.1; // Blurring vertical strokes along X a bit
-    float vert_scale = 0.7; // While adding some contrast to the horizontal strokes
-    float hdoffset   = mix( doffset * horz_scale, doffset * vert_scale, vgrad );    
+    float horz_scale  = 1.1; // Blurring vertical strokes along the X axis a bit
+    float vert_scale  = 0.6; // While adding some contrast to the horizontal strokes
+    float hdoffset    = mix( doffset * horz_scale, doffset * vert_scale, vgrad ); 
     float res_doffset = mix( doffset, hdoffset, hint_amount );
     
     float alpha       = smoothstep( 0.5 - res_doffset, 0.5 + res_doffset, sdf );
+
     // Additional contrast
     alpha             = pow( alpha, 1.0 + 0.2 * vgrad * hint_amount );
 
+    // Unfortunately there is no support for ARB_blend_func_extended in WebGL.
+    // Fortunately the background is filled with a solid color so we can do
+    // the blending inside the shader.
     
-    // Unfortunately there is no support for ARB_blend_func_extended in WebGL
-    // So we're blending glyph pixels with the background inside the shader
-    // discarding pixels beyond the alpha threshold
+    // Discarding pixels beyond a threshold to minimise possible artifacts.
     if ( alpha < 20.0 / 256.0 ) discard;
     
-    vec3 channels = subpixel( grad.x * subpixel_amount, alpha );
+    vec3 channels = subpixel( grad.x * 0.5 * subpixel_amount, alpha );
+
+    // For subpixel rendering we have to blend each color channel separately
     vec3 res = mix( bg_color, font_color, channels );
     
     gl_FragColor = vec4( res, 1.0 );
