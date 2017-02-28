@@ -69,7 +69,7 @@ varying float sdf_texel;
  */
 
 vec3 subpixel( float v, float a ) {
-    float vt      = 0.35 * v; // 1.0 will make your eyes bleed
+    float vt      = 0.6 * v; // 1.0 will make your eyes bleed
     vec3  rgb_max = vec3( -vt, 0.0, vt );
     float top     = abs( vt );
     float bottom  = -top - 1.0;
