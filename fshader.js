@@ -33,7 +33,7 @@ uniform vec3 font_color;
 
 varying vec2  tc0;
 varying float doffset;
-varying float sdf_texel;
+varying vec2  sdf_texel;
 
 
 /*
@@ -82,8 +82,8 @@ vec3 subpixel( float v, float a ) {
 void main() {
     // Sampling the texture, L pattern
     float sdf       = texture2D( font_tex, tc0 ).r;
-    float sdf_north = texture2D( font_tex, tc0 + vec2( 0.0, sdf_texel ) ).r;
-    float sdf_east  = texture2D( font_tex, tc0 + vec2( sdf_texel, 0.0 ) ).r;
+    float sdf_north = texture2D( font_tex, tc0 + vec2( 0.0, sdf_texel.y ) ).r;
+    float sdf_east  = texture2D( font_tex, tc0 + vec2( sdf_texel.x, 0.0 ) ).r;
 
     // Estimating stroke direction by the distance field gradient vector
     vec2  sgrad     = vec2( sdf_east - sdf, sdf_north - sdf );

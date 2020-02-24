@@ -196,16 +196,16 @@ function bindAttribs( gl, attribs ) {
     }
 }
 
-function loadTexture( gl, filename, format = gl.RGBA, generate_mipmap = true ) {
+function loadTexture( gl, filename, format = gl.RGBA, generate_mipmap = true, nearest = false, repeat = false ) {
     var tex = gl.createTexture();
     var image = new Image();
-    image.onload = function() { setTexImage( gl, image, tex, format, generate_mipmap ); };
+    image.onload = function() { setTexImage( gl, image, tex, format, generate_mipmap, nearest, repeat ); };
     image.src = filename;
     var res = { id: tex, image: image };
     return res;
 }
 
-function setTexImage( gl, image, tex, format, generate_mipmap, nearest_filtering ) {
+function setTexImage( gl, image, tex, format, generate_mipmap, nearest_filtering, repeat_uv ) {
     gl.bindTexture( gl.TEXTURE_2D, tex );
     gl.texImage2D( gl.TEXTURE_2D, 0, format, format, gl.UNSIGNED_BYTE, image );
 
@@ -213,6 +213,14 @@ function setTexImage( gl, image, tex, format, generate_mipmap, nearest_filtering
         gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR );
     } else {
         gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
+    }
+
+    if ( repeat_uv ) {
+        gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT );
+        gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT );        
+    } else {
+        gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE );
+        gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE );
     }
 
     if ( generate_mipmap ) {

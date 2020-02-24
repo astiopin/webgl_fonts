@@ -27,12 +27,12 @@ attribute vec2  pos;        // Vertex position
 attribute vec2  tex0;       // Tex coord
 attribute float sdf_size;   // Signed distance field size in screen pixels
 
-uniform float sdf_tex_size; // Size of font texture. Assuming square image
+uniform vec2  sdf_tex_size; // Size of font texture in pixels
 uniform mat3  transform;
 
 varying vec2  tc0;
 varying float doffset;
-varying float sdf_texel;
+varying vec2  sdf_texel;
 
 void main(void) {
     tc0 = tex0;

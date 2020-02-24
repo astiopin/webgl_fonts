@@ -129,6 +129,10 @@ That makes calamity of so long life.`
     var font_color = [ 0.1, 0.1, 0.1 ];
     var bg_color   = [ 0.9, 0.9, 0.9 ];
 
+    var canvas_width = canvas.clientWidth;
+    var canvas_height = canvas.clientHeight;
+    var pixel_ratio = window.devicePixelRatio || 1;
+
     function render() {
 
         if ( do_update ) {
@@ -142,7 +146,7 @@ That makes calamity of so long life.`
             }
             tex = font.tex;
 
-            var font_size = font_size_input.value;
+            var font_size = Math.round( font_size_input.value * pixel_ratio );
             var fmetrics = fontMetrics( font, font_size, font_size * 0.2 );
             
             // Laying out the text
@@ -159,11 +163,23 @@ That makes calamity of so long life.`
             do_update = false;
         }        
 
-        // Transformation matrix. 3x3 ortho.
-        // Canvas size, [0,0] is at the text rect's top left corner, Y goes up.
+        // Setting canvas size considering display DPI
+
+        var new_pixel_ratio = window.devicePixelRatio || 1;
+
+        if ( pixel_ratio != new_pixel_ratio ) {
+            do_update = true;
+            pixel_ratio = new_pixel_ratio;
+        }
         
-        var cw = canvas.clientWidth;
-        var ch = canvas.clientHeight;
+        var cw = Math.round( pixel_ratio * canvas_width * 0.5 ) * 2.0;
+        var ch = Math.round( pixel_ratio * canvas_height * 0.5 ) * 2.0;
+
+        canvas.width = cw;
+        canvas.height = ch;
+
+        canvas.style.width  = ( cw / pixel_ratio ) + "px";
+        canvas.style.height = ( ch / pixel_ratio ) + "px";
 
         // Centering the text rectangle
         
@@ -172,11 +188,14 @@ That makes calamity of so long life.`
 
         var ws = 2.0 / cw;
         var hs = 2.0 / ch;
+
+        // Transformation matrix. 3x3 ortho.
+        // Canvas size, [0,0] is at the text rect's top left corner, Y goes up.        
         
         var screen_mat = new Float32Array([
-            ws,     0,       0,
-            0,      hs,      0,
-            dx*ws,  dy*hs,   0
+            ws,       0,         0,
+            0,        hs,        0,
+            dx * ws,  dy * hs,   1
         ]);
 
         // Clearing the canvas
@@ -191,7 +210,7 @@ That makes calamity of so long life.`
         gl.useProgram( prog.id );
 
         prog.font_tex.set( 0 );
-        prog.sdf_tex_size.set( 1024.0 );
+        prog.sdf_tex_size.set( tex.image.width, tex.image.height );
         prog.transform.setv( screen_mat );
         prog.hint_amount.set( font_hinting );
         prog.subpixel_amount.set( subpixel );
