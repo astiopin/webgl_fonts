@@ -59,12 +59,12 @@ function charRect( pos, font, font_metrics, font_char, kern = 0.0 ) {
     var g      = font_char.rect;
     var bottom = baseline - scale * ( font.descent + font.iy );
     var top    = bottom   + scale * ( font.row_height );
-    var left   = pos[0]   + scale * ( font_char.bearing_x + kern - font.ix );
-    var right  = left     + scale * ( g[2] - g[0] );
+    var left   = pos[0]   + font.aspect * scale * ( font_char.bearing_x + kern - font.ix );
+    var right  = left     + font.aspect * scale * ( g[2] - g[0] );
     var p = [ left, top, right, bottom ];    
 
     // Advancing pen position
-    var new_pos_x = pos[0] + scale * ( font_char.advance_x );
+    var new_pos_x = pos[0] + font.aspect * scale * ( font_char.advance_x );
 
     // Signed distance field size in screen pixels
     var sdf_size  = 2.0 * font.iy * scale;
@@ -100,7 +100,7 @@ function writeString( string, font, font_metrics, pos, vertex_array, str_pos = 0
         if ( schar == "\n" ) {
             if ( cpos[0] > x_max ) x_max = cpos[0]; // Expanding the bounding rect
             cpos[0]  = pos[0];                      
-            cpos[1] -= font_metrics.line_height;    
+            cpos[1] -= font_metrics.line_height;
             prev_char = " ";
             continue;
         }
