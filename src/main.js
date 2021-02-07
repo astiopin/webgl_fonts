@@ -81,7 +81,9 @@ That makes calamity of so long life.`
         "ubuntu_bold"   : ubuntu_bold_font,
         "dejavu"        : dejavu_font,
         "dejavu_italic" : dejavu_italic_font   
-    }    
+    }
+
+    var font = all_fonts[ fonts_select.value ];
 
     // GL stuff
     
@@ -114,6 +116,7 @@ That makes calamity of so long life.`
     gl.bindBuffer( gl.ARRAY_BUFFER, vertex_buffer );
     gl.bufferData( gl.ARRAY_BUFFER, vertex_array, gl.DYNAMIC_DRAW );
     gl.bindBuffer( gl.ARRAY_BUFFER, null );
+    gl.enable( gl.BLEND );
 
     var prog = createProgram( gl, vertCode, fragCode, attribs );
 
@@ -140,7 +143,7 @@ That makes calamity of so long life.`
             font_color = colorFromString( font_color_input.value, [ 0.1, 0.1, 0.1 ] );
             bg_color   = colorFromString( bg_color_input.value,   [ 0.9, 0.9, 0.9 ] );
             
-            var font = all_fonts[ fonts_select.value ];
+            font = all_fonts[ fonts_select.value ];
             if ( !font ) {
                 font = roboto_font;
             }
@@ -161,7 +164,7 @@ That makes calamity of so long life.`
             subpixel = subpixel_input.checked ? 1.0 : 0.0;
             
             do_update = false;
-        }        
+        }
 
         // Setting canvas size considering display DPI
 
@@ -197,13 +200,13 @@ That makes calamity of so long life.`
             0,        hs,        0,
             dx * ws,  dy * hs,   1
         ]);
-
+        
         // Clearing the canvas
         
         gl.clearColor( bg_color[0], bg_color[1], bg_color[2], 0.0 );
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
         gl.viewport( 0, 0, canvas.width, canvas.height );
-
+        
         // Setting up our shader values and rendering
         // a vcount of vertices from the vertex_buffer
         
@@ -211,17 +214,32 @@ That makes calamity of so long life.`
 
         prog.font_tex.set( 0 );
         prog.sdf_tex_size.set( tex.image.width, tex.image.height );
+        prog.sdf_border_size.set( font.iy );
         prog.transform.setv( screen_mat );
         prog.hint_amount.set( font_hinting );
+        prog.font_color.set( font_color[0], font_color[1], font_color[2], 1.0 );
         prog.subpixel_amount.set( subpixel );
-        prog.bg_color.setv( bg_color );
-        prog.font_color.setv( font_color );
         
         gl.activeTexture( gl.TEXTURE0 );
         gl.bindTexture( gl.TEXTURE_2D, tex.id );
         
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+        gl.bindBuffer( gl.ARRAY_BUFFER, vertex_buffer );
         bindAttribs( gl, attribs );
+
+        if ( subpixel == 1.0 ) {
+            // Subpixel antialiasing.
+            // Method proposed by Radek Dutkiewicz @oomek
+            // Text color goes to constant blend factor and 
+            // triplet alpha comes from the fragment shader output
+
+            gl.blendColor( font_color[0], font_color[1], font_color[2], 1.0 );
+            gl.blendEquation( gl.FUNC_ADD );
+            gl.blendFunc( gl.CONSTANT_COLOR, gl.ONE_MINUS_SRC_COLOR );
+        } else {
+            // Greyscale antialising
+            gl.blendEquation( gl.FUNC_ADD );
+            gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+        }
 
         gl.drawArrays(gl.TRIANGLES, 0, vcount);
         

@@ -61,22 +61,22 @@ function charRect( pos, font, font_metrics, font_char, kern = 0.0 ) {
     var top    = bottom   + scale * ( font.row_height );
     var left   = pos[0]   + font.aspect * scale * ( font_char.bearing_x + kern - font.ix );
     var right  = left     + font.aspect * scale * ( g[2] - g[0] );
-    var p = [ left, top, right, bottom ];    
+    var p = [ left, top, right, bottom ];
 
     // Advancing pen position
-    var new_pos_x = pos[0] + font.aspect * scale * ( font_char.advance_x );
+    var new_pos_x = pos[0] + font.aspect * scale * ( font_char.advance_x + kern );
 
     // Signed distance field size in screen pixels
-    var sdf_size  = 2.0 * font.iy * scale;
+    //var sdf_size  = 2.0 * font.iy * scale;
 
     var vertices = [
-        p[0], p[1],  g[0], g[1],  sdf_size,
-        p[2], p[1],  g[2], g[1],  sdf_size,
-        p[0], p[3],  g[0], g[3],  sdf_size,
+        p[0], p[1],  g[0], g[1],  scale,
+        p[2], p[1],  g[2], g[1],  scale,
+        p[0], p[3],  g[0], g[3],  scale,
 
-        p[0], p[3],  g[0], g[3],  sdf_size,
-        p[2], p[1],  g[2], g[1],  sdf_size,
-        p[2], p[3],  g[2], g[3],  sdf_size ];
+        p[0], p[3],  g[0], g[3],  scale,
+        p[2], p[1],  g[2], g[1],  scale,
+        p[2], p[3],  g[2], g[3],  scale ];
 
     return { vertices : vertices, pos : [ new_pos_x, pos[1] ] };
 }
