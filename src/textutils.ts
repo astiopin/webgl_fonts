@@ -1,40 +1,4 @@
-export type ImageTexture = {
-  id: WebGLTexture;
-  image: HTMLImageElement;
-};
-
-export type Font = {
-  ix: number;
-  iy: number;
-  aspect: number;
-  row_height: number;
-  ascent: number;
-  descent: number;
-  line_gap: number;
-  cap_height: number;
-  x_height: number;
-  space_advance: number;
-  chars: { [key: string]: FontChar };
-  kern: { [key: string]: number };
-  tex?: ImageTexture;
-};
-
-export type FontMetrics = {
-  cap_scale: number;
-  low_scale: number;
-  pixel_size: number;
-  ascent: number;
-  line_height: number;
-};
-
-export type FontChar = {
-  rect: number[];
-  bearing_x?: number;
-  bearing_y?: number;
-  advance_x?: number;
-  advance_y?: number;
-  flags: number;
-};
+import { Font, FontChar, FontMetrics } from "./types";
 
 export function fontMetrics(
   font: Font,
@@ -44,15 +8,15 @@ export function fontMetrics(
   // We use separate scale for the low case characters
   // so that x-height fits the pixel grid.
   // Other characters use cap-height to fit to the pixels
-  var cap_scale = pixel_size / font.cap_height;
-  var low_scale = Math.round(font.x_height * cap_scale) / font.x_height;
+  const cap_scale = pixel_size / font.cap_height;
+  const low_scale = Math.round(font.x_height * cap_scale) / font.x_height;
 
   // Ascent should be a whole number since it's used to calculate the baseline
   // position which should lie at the pixel boundary
-  var ascent = Math.round(font.ascent * cap_scale);
+  const ascent = Math.round(font.ascent * cap_scale);
 
   // Same for the line height
-  var line_height = Math.round(
+  const line_height = Math.round(
     cap_scale * (font.ascent + font.descent + font.line_gap) + more_line_gap
   );
 
@@ -73,30 +37,31 @@ export function charRect(
   kern = 0.0
 ) {
   // Low case characters have first bit set in 'flags'
-  var lowcase = (font_char.flags & 1) == 1;
+  const lowcase = (font_char.flags & 1) == 1;
 
   // Pen position is at the top of the line, Y goes up
-  var baseline = pos[1] - font_metrics.ascent;
+  const baseline = pos[1] - font_metrics.ascent;
 
   // Low case chars use their own scale
-  var scale = lowcase ? font_metrics.low_scale : font_metrics.cap_scale;
+  const scale = lowcase ? font_metrics.low_scale : font_metrics.cap_scale;
 
   // Laying out the glyph rectangle
-  var g = font_char.rect;
-  var bottom = baseline - scale * (font.descent + font.iy);
-  var top = bottom + scale * font.row_height;
-  var left =
+  const g = font_char.rect;
+  const bottom = baseline - scale * (font.descent + font.iy);
+  const top = bottom + scale * font.row_height;
+  const left =
     pos[0] + font.aspect * scale * (font_char.bearing_x! + kern - font.ix);
-  var right = left + font.aspect * scale * (g[2] - g[0]);
-  var p = [left, top, right, bottom];
+  const right = left + font.aspect * scale * (g[2] - g[0]);
+  const p = [left, top, right, bottom];
 
   // Advancing pen position
-  var new_pos_x = pos[0] + font.aspect * scale * (font_char.advance_x! + kern);
+  const new_pos_x =
+    pos[0] + font.aspect * scale * (font_char.advance_x! + kern);
 
   // Signed distance field size in screen pixels
-  //var sdf_size  = 2.0 * font.iy * scale;
+  //const sdf_size  = 2.0 * font.iy * scale;
 
-  var vertices = [
+  const vertices = [
     p[0],
     p[1],
     g[0],
@@ -148,17 +113,17 @@ export function writeString(
   str_pos = 0,
   array_pos = 0
 ): StringResult {
-  var prev_char = " "; // Used to calculate kerning
-  var cpos = pos; // Current pen position
-  var x_max = 0.0; // Max width - used for bounding box
-  var scale = font_metrics.cap_scale;
+  let prev_char = " "; // Used to calculate kerning
+  let cpos = pos; // Current pen position
+  let x_max = 0.0; // Max width - used for bounding box
+  const scale = font_metrics.cap_scale;
 
   for (;;) {
     if (str_pos == string.length) break;
-    var glyph_float_count = 6 * 5; // two rectangles, 5 floats per vertex
+    const glyph_float_count = 6 * 5; // two rectangles, 5 floats per vertex
     if (array_pos + glyph_float_count >= vertex_array.length) break;
 
-    var schar = string[str_pos];
+    let schar = string[str_pos];
     str_pos++;
 
     if (schar == "\n") {
@@ -175,21 +140,21 @@ export function writeString(
       continue;
     }
 
-    var font_char = font.chars[schar];
+    let font_char = font.chars[schar];
     if (!font_char) {
       // Substituting unavailable characters with '?'
       schar = "?";
       font_char = font.chars["?"];
     }
 
-    var kern = font.kern[prev_char + schar];
+    let kern = font.kern[prev_char + schar];
     if (!kern) kern = 0.0;
 
     // calculating the glyph rectangle and copying it to the vertex array
 
-    var rect = charRect(cpos, font, font_metrics, font_char, kern);
+    const rect = charRect(cpos, font, font_metrics, font_char, kern);
 
-    for (var i = 0; i < rect.vertices.length; ++i) {
+    for (let i = 0; i < rect.vertices.length; ++i) {
       vertex_array[array_pos] = rect.vertices[i];
       array_pos++;
     }
@@ -198,7 +163,7 @@ export function writeString(
     cpos = rect.pos;
   }
 
-  var res = {
+  const res = {
     rect: [
       pos[0],
       pos[1],

@@ -8,14 +8,11 @@ import {
 } from "./glutils";
 // @ts-ignore
 import { fontMetrics, writeString } from "./textutils";
+import { Options } from "./types";
 
-// function that takes the arguments
-export type Options = {
-  canvas: HTMLCanvasElement;
-  text: string;
-  x: number;
-  y: number;
-};
+export function drawText(options: Options) {
+  throw new Error("Not implemented");
+}
 
 export {
   createProgram,

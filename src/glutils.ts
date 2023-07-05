@@ -1,13 +1,5 @@
-export type Attrib = {
-  name: string;
-  loc: number;
-  type?: number;
-  norm?: boolean;
-  bsize?: number;
-  offset?: number;
-  stride?: number;
-  size?: number;
-};
+import { Attrib } from "./types";
+
 
 export function createProgram(
   gl: WebGL2RenderingContext,
@@ -15,28 +7,28 @@ export function createProgram(
   fragment: string,
   attribs: Attrib[]
 ) {
-  var vshader = gl.createShader(gl.VERTEX_SHADER)!;
+  const vshader = gl.createShader(gl.VERTEX_SHADER)!;
   gl.shaderSource(vshader, vertex);
   gl.compileShader(vshader);
 
-  var vok = gl.getShaderParameter(vshader, gl.COMPILE_STATUS);
+  const vok = gl.getShaderParameter(vshader, gl.COMPILE_STATUS);
   if (!vok) {
     throw "unable to compile vertex shader:" + gl.getShaderInfoLog(vshader);
   }
 
-  var fshader = gl.createShader(gl.FRAGMENT_SHADER)!;
+  const fshader = gl.createShader(gl.FRAGMENT_SHADER)!;
   gl.shaderSource(fshader, fragment);
   gl.compileShader(fshader);
 
-  var fok = gl.getShaderParameter(fshader, gl.COMPILE_STATUS);
+  const fok = gl.getShaderParameter(fshader, gl.COMPILE_STATUS);
   if (!fok) {
     throw "unable to compile fragment shader:" + gl.getShaderInfoLog(fshader);
   }
 
-  var program = gl.createProgram()!;
+  const program = gl.createProgram()!;
 
-  for (var i = 0; i < attribs.length; ++i) {
-    var a = attribs[i];
+  for (let i = 0; i < attribs.length; ++i) {
+    const a = attribs[i];
     gl.bindAttribLocation(program, a.loc, a.name);
   }
 
@@ -45,14 +37,14 @@ export function createProgram(
 
   gl.linkProgram(program);
 
-  var pok = gl.getProgramParameter(program, gl.LINK_STATUS);
+  const pok = gl.getProgramParameter(program, gl.LINK_STATUS);
   if (!pok) {
     throw "unable to link program: " + gl.getProgramInfoLog(program);
   }
 
-  var unf_length = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+  const unf_length = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
 
-  var res: { id: WebGLProgram; uniforms: any[] } & Record<string, any> = {
+  const res: { id: WebGLProgram; uniforms: any[] } & Record<string, any> = {
     id: program,
     uniforms: [],
   };
@@ -156,12 +148,12 @@ export function createProgram(
     };
   }
 
-  for (var i = 0; i < unf_length; ++i) {
-    var u = gl.getActiveUniform(program, i)!;
-    var location = gl.getUniformLocation(program, u.name)!;
+  for (let i = 0; i < unf_length; ++i) {
+    const u = gl.getActiveUniform(program, i)!;
+    const location = gl.getUniformLocation(program, u.name)!;
 
-    var uobj = {
-      name: name,
+    const uobj = {
+      name: u.name,
       idx: i,
       loc: location,
       type: u.type,
@@ -181,10 +173,10 @@ export function initAttribs(
   attribs: Attrib[],
   offset = 0
 ) {
-  var stride = 0;
+  let stride = 0;
 
-  for (var i = 0; i < attribs.length; ++i) {
-    var a = attribs[i];
+  for (let i = 0; i < attribs.length; ++i) {
+    const a = attribs[i];
     if (!a.type) {
       a.type = gl.FLOAT;
     }
@@ -197,14 +189,14 @@ export function initAttribs(
     stride += a.bsize! * a.size!;
   }
 
-  for (var i = 0; i < attribs.length; ++i) {
+  for (let i = 0; i < attribs.length; ++i) {
     attribs[i].stride = stride;
   }
 }
 
 export function bindAttribs(gl: WebGL2RenderingContext, attribs: Attrib[]) {
-  for (var i = 0; i < attribs.length; ++i) {
-    var a = attribs[i];
+  for (let i = 0; i < attribs.length; ++i) {
+    const a = attribs[i];
     gl.vertexAttribPointer(
       a.loc,
       a.size!,
@@ -225,13 +217,13 @@ export function loadTexture(
   nearest = false,
   repeat = false
 ) {
-  var tex = gl.createTexture()!;
-  var image = new Image();
+  const tex = gl.createTexture()!;
+  const image = new Image();
   image.onload = function () {
     setTexImage(gl, image, tex, format, generate_mipmap, nearest, repeat);
   };
   image.src = filename;
-  var res = { id: tex, image: image };
+  const res = { id: tex, image: image };
   return res;
 }
 
@@ -279,10 +271,10 @@ export function setTexImage(
 }
 
 export function colorFromString(string: string, fallback_value = [0, 0, 0]) {
-  var val = parseInt(string.replace("#", ""), 16);
+  const val = parseInt(string.replace("#", ""), 16);
   if (Number.isNaN(val)) return fallback_value;
-  var b = (val & 0xff) / 255.0;
-  var g = ((val >> 8) & 0xff) / 255.0;
-  var r = ((val >> 16) & 0xff) / 255.0;
+  const b = (val & 0xff) / 255.0;
+  const g = ((val >> 8) & 0xff) / 255.0;
+  const r = ((val >> 16) & 0xff) / 255.0;
   return [r, g, b];
 }

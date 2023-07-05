@@ -27,7 +27,7 @@ import {
 } from "./textutils";
 import "./style.css";
 
-var do_update = true;
+let do_update = true;
 
 function update_text() {
   do_update = true;
@@ -36,39 +36,41 @@ function update_text() {
 function glMain() {
   // Initializing input widgets
 
-  var fonts_select = document.getElementById("fonts") as HTMLSelectElement;
+  const fonts_select = document.getElementById("fonts") as HTMLSelectElement;
   fonts_select.addEventListener("input", update_text, false);
   fonts_select.onchange = update_text;
 
-  var font_size_input = document.getElementById(
+  const font_size_input = document.getElementById(
     "font_size"
   ) as HTMLInputElement;
   font_size_input.addEventListener("input", update_text, false);
   font_size_input.onchange = update_text;
 
-  var font_hinting_input = document.getElementById(
+  const font_hinting_input = document.getElementById(
     "font_hinting"
   ) as HTMLInputElement;
   font_hinting_input.addEventListener("input", update_text, false);
   font_hinting_input.onchange = update_text;
 
-  var subpixel_input = document.getElementById("subpixel") as HTMLInputElement;
+  const subpixel_input = document.getElementById(
+    "subpixel"
+  ) as HTMLInputElement;
   subpixel_input.addEventListener("input", update_text, false);
   subpixel_input.onchange = update_text;
 
-  var font_color_input = document.getElementById(
+  const font_color_input = document.getElementById(
     "font_color"
   ) as HTMLInputElement;
   font_color_input.addEventListener("input", update_text, false);
   font_color_input.onchange = update_text;
 
-  var bg_color_input = document.getElementById(
+  const bg_color_input = document.getElementById(
     "background_color"
   ) as HTMLInputElement;
   bg_color_input.addEventListener("input", update_text, false);
   bg_color_input.onchange = update_text;
 
-  var textarea = document.getElementById("text") as HTMLTextAreaElement;
+  const textarea = document.getElementById("text") as HTMLTextAreaElement;
   textarea.value = `To be, or not to be--that is the question:
 Whether 'tis nobler in the mind to suffer
 The slings and arrows of outrageous fortune
@@ -86,7 +88,7 @@ That makes calamity of so long life.`;
   textarea.addEventListener("input", update_text, false);
   textarea.onchange = update_text;
 
-  var all_fonts: { [key: string]: Font } = {
+  const all_fonts: { [key: string]: Font } = {
     roboto: roboto_font,
     roboto_bold: roboto_bold_font,
     ubuntu: ubuntu_font,
@@ -98,12 +100,12 @@ That makes calamity of so long life.`;
     inter_tight_bold: inter_tight_bold_font,
   };
 
-  var font = all_fonts[fonts_select.value];
+  let font = all_fonts[fonts_select.value];
 
   // GL stuff
 
-  var canvas = document.getElementById("glcanvas") as HTMLCanvasElement;
-  var gl = canvas.getContext("webgl2", {
+  const canvas = document.getElementById("glcanvas") as HTMLCanvasElement;
+  const gl = canvas.getContext("webgl2", {
     premultipliedAlpha: false,
     alpha: false,
   })!;
@@ -153,7 +155,7 @@ That makes calamity of so long life.`;
 
   // Vertex attributes
 
-  var attribs: Attrib[] = [
+  const attribs: Attrib[] = [
     { loc: 0, name: "pos", size: 2 }, // Vertex position
     { loc: 1, name: "tex0", size: 2 }, // Texture coordinate
     { loc: 2, name: "sdf_size", size: 1 }, // Glyph SDF distance in screen pixels
@@ -162,31 +164,31 @@ That makes calamity of so long life.`;
 
   // 10000 ought to be enough for anybody
 
-  var vertex_array = new Float32Array((10000 * 6 * attribs[0].stride!) / 4);
+  const vertex_array = new Float32Array((10000 * 6 * attribs[0].stride!) / 4);
 
-  var vertex_buffer = gl.createBuffer();
+  const vertex_buffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
   gl.bufferData(gl.ARRAY_BUFFER, vertex_array, gl.DYNAMIC_DRAW);
   gl.bindBuffer(gl.ARRAY_BUFFER, null);
   gl.enable(gl.BLEND);
 
-  var prog = createProgram(gl, vertCode, fragCode, attribs);
+  const prog = createProgram(gl, vertCode, fragCode, attribs);
 
-  var str_res: StringResult; // Result of a writeString function.
+  let str_res: StringResult; // Result of a writeString function.
   // Contains text bounding rectangle.
 
-  var vcount = 0; // Text string vertex count
-  var tex: ImageTexture; // Font texture
+  let vcount = 0; // Text string vertex count
+  let tex: ImageTexture; // Font texture
 
-  var font_hinting = 1.0;
-  var subpixel = 1.0;
+  let font_hinting = 1.0;
+  let subpixel = 1.0;
 
-  var font_color = [0.1, 0.1, 0.1];
-  var bg_color = [0.9, 0.9, 0.9];
+  let font_color = [0.1, 0.1, 0.1];
+  let bg_color = [0.9, 0.9, 0.9];
 
-  var canvas_width = canvas.clientWidth;
-  var canvas_height = canvas.clientHeight;
-  var pixel_ratio = window.devicePixelRatio || 1;
+  const canvas_width = canvas.clientWidth;
+  const canvas_height = canvas.clientHeight;
+  let pixel_ratio = window.devicePixelRatio || 1;
 
   function render() {
     if (do_update) {
@@ -199,8 +201,8 @@ That makes calamity of so long life.`;
       }
       tex = font.tex!;
 
-      var font_size = Math.round(Number(font_size_input.value) * pixel_ratio);
-      var fmetrics = fontMetrics(font, font_size, font_size * 0.2);
+      const font_size = Math.round(Number(font_size_input.value) * pixel_ratio);
+      const fmetrics = fontMetrics(font, font_size, font_size * 0.2);
 
       // Laying out the text
       str_res = writeString(
@@ -224,15 +226,15 @@ That makes calamity of so long life.`;
 
     // Setting canvas size considering display DPI
 
-    var new_pixel_ratio = window.devicePixelRatio || 1;
+    const new_pixel_ratio = window.devicePixelRatio || 1;
 
     if (pixel_ratio != new_pixel_ratio) {
       do_update = true;
       pixel_ratio = new_pixel_ratio;
     }
 
-    var cw = Math.round(pixel_ratio * canvas_width * 0.5) * 2.0;
-    var ch = Math.round(pixel_ratio * canvas_height * 0.5) * 2.0;
+    const cw = Math.round(pixel_ratio * canvas_width * 0.5) * 2.0;
+    const ch = Math.round(pixel_ratio * canvas_height * 0.5) * 2.0;
 
     canvas.width = cw;
     canvas.height = ch;
@@ -242,16 +244,16 @@ That makes calamity of so long life.`;
 
     // Centering the text rectangle
 
-    var dx = Math.round(-0.5 * str_res.rect[2]);
-    var dy = Math.round(0.5 * str_res.rect[3]);
+    const dx = Math.round(-0.5 * str_res.rect[2]);
+    const dy = Math.round(0.5 * str_res.rect[3]);
 
-    var ws = 2.0 / cw;
-    var hs = 2.0 / ch;
+    const ws = 2.0 / cw;
+    const hs = 2.0 / ch;
 
     // Transformation matrix. 3x3 ortho.
     // Canvas size, [0,0] is at the text rect's top left corner, Y goes up.
 
-    var screen_mat = new Float32Array([
+    const screen_mat = new Float32Array([
       ws,
       0,
       0,
