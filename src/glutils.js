@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 2017 Anton Stepin astiopin@gmail.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
- */
-
-function createProgram(gl, vertex, fragment, attribs) {
+export function createProgram(gl, vertex, fragment, attribs) {
   var vshader = gl.createShader(gl.VERTEX_SHADER);
   gl.shaderSource(vshader, vertex);
   gl.compileShader(vshader);
@@ -172,7 +149,7 @@ function createProgram(gl, vertex, fragment, attribs) {
   return res;
 }
 
-function initAttribs(gl, attribs, offset = 0) {
+export function initAttribs(gl, attribs, offset = 0) {
   var stride = 0;
 
   for (var i = 0; i < attribs.length; ++i) {
@@ -194,7 +171,7 @@ function initAttribs(gl, attribs, offset = 0) {
   }
 }
 
-function bindAttribs(gl, attribs) {
+export function bindAttribs(gl, attribs) {
   for (var i = 0; i < attribs.length; ++i) {
     var a = attribs[i];
     gl.vertexAttribPointer(a.loc, a.size, a.type, a.norm, a.stride, a.offset);
@@ -202,7 +179,7 @@ function bindAttribs(gl, attribs) {
   }
 }
 
-function loadTexture(
+export function loadTexture(
   gl,
   filename,
   format = gl.RGBA,
@@ -220,7 +197,7 @@ function loadTexture(
   return res;
 }
 
-function setTexImage(
+export function setTexImage(
   gl,
   image,
   tex,
@@ -263,7 +240,7 @@ function setTexImage(
   gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
-function colorFromString(string, fallback_value = [0, 0, 0]) {
+export function colorFromString(string, fallback_value = [0, 0, 0]) {
   var val = parseInt(string.replace("#", ""), 16);
   if (val == NaN) return fallback_value;
   var b = (val & 0xff) / 255.0;

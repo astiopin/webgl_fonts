@@ -1,4 +1,4 @@
-var roboto_bold_font = {
+export default {
   ix: 0.009766,
   iy: 0.009766,
   aspect: 1.0,
