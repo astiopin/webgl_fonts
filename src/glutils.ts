@@ -1,5 +1,21 @@
-export function createProgram(gl, vertex, fragment, attribs) {
-  var vshader = gl.createShader(gl.VERTEX_SHADER);
+export type Attrib = {
+  name: string;
+  loc: number;
+  type?: number;
+  norm?: boolean;
+  bsize?: number;
+  offset?: number;
+  stride?: number;
+  size?: number;
+};
+
+export function createProgram(
+  gl: WebGL2RenderingContext,
+  vertex: string,
+  fragment: string,
+  attribs: Attrib[]
+) {
+  var vshader = gl.createShader(gl.VERTEX_SHADER)!;
   gl.shaderSource(vshader, vertex);
   gl.compileShader(vshader);
 
@@ -8,7 +24,7 @@ export function createProgram(gl, vertex, fragment, attribs) {
     throw "unable to compile vertex shader:" + gl.getShaderInfoLog(vshader);
   }
 
-  var fshader = gl.createShader(gl.FRAGMENT_SHADER);
+  var fshader = gl.createShader(gl.FRAGMENT_SHADER)!;
   gl.shaderSource(fshader, fragment);
   gl.compileShader(fshader);
 
@@ -17,7 +33,7 @@ export function createProgram(gl, vertex, fragment, attribs) {
     throw "unable to compile fragment shader:" + gl.getShaderInfoLog(fshader);
   }
 
-  var program = gl.createProgram();
+  var program = gl.createProgram()!;
 
   for (var i = 0; i < attribs.length; ++i) {
     var a = attribs[i];
@@ -36,38 +52,45 @@ export function createProgram(gl, vertex, fragment, attribs) {
 
   var unf_length = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
 
-  var res = { id: program, uniforms: [] };
+  var res: { id: WebGLProgram; uniforms: any[] } & Record<string, any> = {
+    id: program,
+    uniforms: [],
+  };
 
-  function make_unf_set(name, location, type) {
+  function make_unf_set(
+    name: string,
+    location: WebGLUniformLocation,
+    type: number
+  ) {
     if (type == gl.FLOAT) {
-      return function (v0) {
+      return function (v0: number) {
         gl.uniform1f(location, v0);
       };
     }
     if (type == gl.FLOAT_VEC2) {
-      return function (v0, v1) {
+      return function (v0: number, v1: number) {
         gl.uniform2f(location, v0, v1);
       };
     }
     if (type == gl.FLOAT_VEC3) {
-      return function (v0, v1, v2) {
+      return function (v0: number, v1: number, v2: number) {
         gl.uniform3f(location, v0, v1, v2);
       };
     }
     if (type == gl.FLOAT_VEC4) {
-      return function (v0, v1, v2, v3) {
+      return function (v0: number, v1: number, v2: number, v3: number) {
         gl.uniform4f(location, v0, v1, v2, v3);
       };
     }
 
     if (type == gl.SAMPLER_2D) {
-      return function (value) {
+      return function (value: number) {
         gl.uniform1i(location, value);
       };
     }
 
     if (type == gl.SAMPLER_CUBE) {
-      return function (value) {
+      return function (value: number) {
         gl.uniform1i(location, value);
       };
     }
@@ -82,39 +105,43 @@ export function createProgram(gl, vertex, fragment, attribs) {
     };
   }
 
-  function make_unf_setv(name, location, type) {
+  function make_unf_setv(
+    name: string,
+    location: WebGLUniformLocation,
+    type: number
+  ) {
     if (type == gl.FLOAT) {
-      return function (value) {
+      return function (value: number[]) {
         gl.uniform1fv(location, value);
       };
     }
     if (type == gl.FLOAT_VEC2) {
-      return function (value) {
+      return function (value: number[]) {
         gl.uniform2fv(location, value);
       };
     }
     if (type == gl.FLOAT_VEC3) {
-      return function (value) {
+      return function (value: number[]) {
         gl.uniform3fv(location, value);
       };
     }
     if (type == gl.FLOAT_VEC4) {
-      return function (value) {
+      return function (value: number[]) {
         gl.uniform4fv(location, value);
       };
     }
     if (type == gl.FLOAT_MAT2) {
-      return function (value, transpose = false) {
+      return function (value: number[], transpose = false) {
         gl.uniformMatrix2fv(location, transpose, value);
       };
     }
     if (type == gl.FLOAT_MAT3) {
-      return function (value, transpose = false) {
+      return function (value: number[], transpose = false) {
         gl.uniformMatrix3fv(location, transpose, value);
       };
     }
     if (type == gl.FLOAT_MAT4) {
-      return function (value, transpose = false) {
+      return function (value: number[], transpose = false) {
         gl.uniformMatrix4fv(location, transpose, value);
       };
     }
@@ -130,8 +157,8 @@ export function createProgram(gl, vertex, fragment, attribs) {
   }
 
   for (var i = 0; i < unf_length; ++i) {
-    var u = gl.getActiveUniform(program, i);
-    var location = gl.getUniformLocation(program, u.name);
+    var u = gl.getActiveUniform(program, i)!;
+    var location = gl.getUniformLocation(program, u.name)!;
 
     var uobj = {
       name: name,
@@ -149,7 +176,11 @@ export function createProgram(gl, vertex, fragment, attribs) {
   return res;
 }
 
-export function initAttribs(gl, attribs, offset = 0) {
+export function initAttribs(
+  gl: WebGL2RenderingContext,
+  attribs: Attrib[],
+  offset = 0
+) {
   var stride = 0;
 
   for (var i = 0; i < attribs.length; ++i) {
@@ -163,7 +194,7 @@ export function initAttribs(gl, attribs, offset = 0) {
     if (!a.norm) a.norm = false;
 
     a.offset = offset + stride;
-    stride += a.bsize * a.size;
+    stride += a.bsize! * a.size!;
   }
 
   for (var i = 0; i < attribs.length; ++i) {
@@ -171,23 +202,30 @@ export function initAttribs(gl, attribs, offset = 0) {
   }
 }
 
-export function bindAttribs(gl, attribs) {
+export function bindAttribs(gl: WebGL2RenderingContext, attribs: Attrib[]) {
   for (var i = 0; i < attribs.length; ++i) {
     var a = attribs[i];
-    gl.vertexAttribPointer(a.loc, a.size, a.type, a.norm, a.stride, a.offset);
+    gl.vertexAttribPointer(
+      a.loc,
+      a.size!,
+      a.type!,
+      a.norm!,
+      a.stride!,
+      a.offset!
+    );
     gl.enableVertexAttribArray(a.loc);
   }
 }
 
 export function loadTexture(
-  gl,
-  filename,
-  format = gl.RGBA,
+  gl: WebGL2RenderingContext,
+  filename: string,
+  format: number = gl.RGBA,
   generate_mipmap = true,
   nearest = false,
   repeat = false
 ) {
-  var tex = gl.createTexture();
+  var tex = gl.createTexture()!;
   var image = new Image();
   image.onload = function () {
     setTexImage(gl, image, tex, format, generate_mipmap, nearest, repeat);
@@ -198,13 +236,13 @@ export function loadTexture(
 }
 
 export function setTexImage(
-  gl,
-  image,
-  tex,
-  format,
-  generate_mipmap,
-  nearest_filtering,
-  repeat_uv
+  gl: WebGL2RenderingContext,
+  image: HTMLImageElement,
+  tex: WebGLTexture,
+  format: number,
+  generate_mipmap: boolean,
+  nearest_filtering: boolean,
+  repeat_uv: boolean
 ) {
   gl.bindTexture(gl.TEXTURE_2D, tex);
   gl.texImage2D(gl.TEXTURE_2D, 0, format, format, gl.UNSIGNED_BYTE, image);
@@ -240,9 +278,9 @@ export function setTexImage(
   gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
-export function colorFromString(string, fallback_value = [0, 0, 0]) {
+export function colorFromString(string: string, fallback_value = [0, 0, 0]) {
   var val = parseInt(string.replace("#", ""), 16);
-  if (val == NaN) return fallback_value;
+  if (Number.isNaN(val)) return fallback_value;
   var b = (val & 0xff) / 255.0;
   var g = ((val >> 8) & 0xff) / 255.0;
   var r = ((val >> 16) & 0xff) / 255.0;

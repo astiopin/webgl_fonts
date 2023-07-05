@@ -1,3 +1,4 @@
+import type { Font } from "../textutils";
 export default {
   ix: 0.009766,
   iy: 0.009766,
@@ -1609,4 +1610,4 @@ export default {
     "\u007d\u0059": -0.002174,
     "\u007d\u005a": -0.00308,
   },
-};
+} as Font;

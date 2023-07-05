@@ -1,3 +1,4 @@
+import type { Font } from "../textutils";
 export default {
   ix: 0.009766,
   iy: 0.009766,
@@ -766,4 +767,4 @@ export default {
   },
 
   kern: {},
-};
+} as Font;

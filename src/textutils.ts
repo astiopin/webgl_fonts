@@ -1,4 +1,46 @@
-export function fontMetrics(font, pixel_size, more_line_gap = 0.0) {
+export type ImageTexture = {
+  id: WebGLTexture;
+  image: HTMLImageElement;
+};
+
+export type Font = {
+  ix: number;
+  iy: number;
+  aspect: number;
+  row_height: number;
+  ascent: number;
+  descent: number;
+  line_gap: number;
+  cap_height: number;
+  x_height: number;
+  space_advance: number;
+  chars: { [key: string]: FontChar };
+  kern: { [key: string]: number };
+  tex?: ImageTexture;
+};
+
+export type FontMetrics = {
+  cap_scale: number;
+  low_scale: number;
+  pixel_size: number;
+  ascent: number;
+  line_height: number;
+};
+
+export type FontChar = {
+  rect: number[];
+  bearing_x?: number;
+  bearing_y?: number;
+  advance_x?: number;
+  advance_y?: number;
+  flags: number;
+};
+
+export function fontMetrics(
+  font: Font,
+  pixel_size: number,
+  more_line_gap = 0.0
+) {
   // We use separate scale for the low case characters
   // so that x-height fits the pixel grid.
   // Other characters use cap-height to fit to the pixels
@@ -23,7 +65,13 @@ export function fontMetrics(font, pixel_size, more_line_gap = 0.0) {
   };
 }
 
-export function charRect(pos, font, font_metrics, font_char, kern = 0.0) {
+export function charRect(
+  pos: number[],
+  font: Font,
+  font_metrics: FontMetrics,
+  font_char: FontChar,
+  kern = 0.0
+) {
   // Low case characters have first bit set in 'flags'
   var lowcase = (font_char.flags & 1) == 1;
 
@@ -38,12 +86,12 @@ export function charRect(pos, font, font_metrics, font_char, kern = 0.0) {
   var bottom = baseline - scale * (font.descent + font.iy);
   var top = bottom + scale * font.row_height;
   var left =
-    pos[0] + font.aspect * scale * (font_char.bearing_x + kern - font.ix);
+    pos[0] + font.aspect * scale * (font_char.bearing_x! + kern - font.ix);
   var right = left + font.aspect * scale * (g[2] - g[0]);
   var p = [left, top, right, bottom];
 
   // Advancing pen position
-  var new_pos_x = pos[0] + font.aspect * scale * (font_char.advance_x + kern);
+  var new_pos_x = pos[0] + font.aspect * scale * (font_char.advance_x! + kern);
 
   // Signed distance field size in screen pixels
   //var sdf_size  = 2.0 * font.iy * scale;
@@ -85,15 +133,21 @@ export function charRect(pos, font, font_metrics, font_char, kern = 0.0) {
   return { vertices: vertices, pos: [new_pos_x, pos[1]] };
 }
 
+export type StringResult = {
+  rect: number[];
+  string_pos: number;
+  array_pos: number;
+};
+
 export function writeString(
-  string,
-  font,
-  font_metrics,
-  pos,
-  vertex_array,
+  string: string,
+  font: Font,
+  font_metrics: FontMetrics,
+  pos: number[],
+  vertex_array: Float32Array,
   str_pos = 0,
   array_pos = 0
-) {
+): StringResult {
   var prev_char = " "; // Used to calculate kerning
   var cpos = pos; // Current pen position
   var x_max = 0.0; // Max width - used for bounding box

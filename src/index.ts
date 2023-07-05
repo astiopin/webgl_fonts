@@ -1,17 +1,23 @@
-import fragCode from "./fshader.frag";
-import vertCode from "./vshader.vert";
 import {
   createProgram,
   initAttribs,
   bindAttribs,
   loadTexture,
   colorFromString,
+  // @ts-ignore
 } from "./glutils";
+// @ts-ignore
 import { fontMetrics, writeString } from "./textutils";
 
+// function that takes the arguments
+export type Options = {
+  canvas: HTMLCanvasElement;
+  text: string;
+  x: number;
+  y: number;
+};
+
 export {
-  fragCode,
-  vertCode,
   createProgram,
   initAttribs,
   bindAttribs,

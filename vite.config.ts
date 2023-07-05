@@ -7,7 +7,7 @@ export default defineConfig({
   build: {
     lib: {
       formats: ["es"],
-      entry: "src/index.js",
+      entry: "src/index.ts",
       fileName: "index",
     },
   },

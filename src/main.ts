@@ -16,8 +16,15 @@ import {
   bindAttribs,
   loadTexture,
   colorFromString,
+  Attrib,
 } from "./glutils";
-import { fontMetrics, writeString } from "./textutils";
+import {
+  Font,
+  ImageTexture,
+  StringResult,
+  fontMetrics,
+  writeString,
+} from "./textutils";
 import "./style.css";
 
 var do_update = true;
@@ -29,31 +36,39 @@ function update_text() {
 function glMain() {
   // Initializing input widgets
 
-  var fonts_select = document.getElementById("fonts");
+  var fonts_select = document.getElementById("fonts") as HTMLSelectElement;
   fonts_select.addEventListener("input", update_text, false);
   fonts_select.onchange = update_text;
 
-  var font_size_input = document.getElementById("font_size");
+  var font_size_input = document.getElementById(
+    "font_size"
+  ) as HTMLInputElement;
   font_size_input.addEventListener("input", update_text, false);
   font_size_input.onchange = update_text;
 
-  var font_hinting_input = document.getElementById("font_hinting");
+  var font_hinting_input = document.getElementById(
+    "font_hinting"
+  ) as HTMLInputElement;
   font_hinting_input.addEventListener("input", update_text, false);
   font_hinting_input.onchange = update_text;
 
-  var subpixel_input = document.getElementById("subpixel");
+  var subpixel_input = document.getElementById("subpixel") as HTMLInputElement;
   subpixel_input.addEventListener("input", update_text, false);
   subpixel_input.onchange = update_text;
 
-  var font_color_input = document.getElementById("font_color");
+  var font_color_input = document.getElementById(
+    "font_color"
+  ) as HTMLInputElement;
   font_color_input.addEventListener("input", update_text, false);
   font_color_input.onchange = update_text;
 
-  var bg_color_input = document.getElementById("background_color");
+  var bg_color_input = document.getElementById(
+    "background_color"
+  ) as HTMLInputElement;
   bg_color_input.addEventListener("input", update_text, false);
   bg_color_input.onchange = update_text;
 
-  var textarea = document.getElementById("text");
+  var textarea = document.getElementById("text") as HTMLTextAreaElement;
   textarea.value = `To be, or not to be--that is the question:
 Whether 'tis nobler in the mind to suffer
 The slings and arrows of outrageous fortune
@@ -71,7 +86,7 @@ That makes calamity of so long life.`;
   textarea.addEventListener("input", update_text, false);
   textarea.onchange = update_text;
 
-  var all_fonts = {
+  var all_fonts: { [key: string]: Font } = {
     roboto: roboto_font,
     roboto_bold: roboto_bold_font,
     ubuntu: ubuntu_font,
@@ -87,11 +102,11 @@ That makes calamity of so long life.`;
 
   // GL stuff
 
-  var canvas = document.getElementById("glcanvas");
-  var gl = canvas.getContext("experimental-webgl", {
+  var canvas = document.getElementById("glcanvas") as HTMLCanvasElement;
+  var gl = canvas.getContext("webgl2", {
     premultipliedAlpha: false,
     alpha: false,
-  });
+  })!;
 
   // Loading SDF font images. Resulting textures should NOT be mipmapped!
 
@@ -127,28 +142,18 @@ That makes calamity of so long life.`;
     gl.LUMINANCE,
     false
   );
-  sf_mono_font.tex = loadTexture(
-    gl,
-    "fonts/sf-mono.png",
-    gl.LUMINANCE,
-    false,
-  );
-  inter_font.tex = loadTexture(
-    gl,
-    "fonts/inter.png",
-    gl.LUMINANCE,
-    false,
-  );
+  sf_mono_font.tex = loadTexture(gl, "fonts/sf-mono.png", gl.LUMINANCE, false);
+  inter_font.tex = loadTexture(gl, "fonts/inter.png", gl.LUMINANCE, false);
   inter_tight_bold_font.tex = loadTexture(
     gl,
     "fonts/inter-tight-bold.png",
     gl.LUMINANCE,
-    false,
+    false
   );
 
   // Vertex attributes
 
-  var attribs = [
+  var attribs: Attrib[] = [
     { loc: 0, name: "pos", size: 2 }, // Vertex position
     { loc: 1, name: "tex0", size: 2 }, // Texture coordinate
     { loc: 2, name: "sdf_size", size: 1 }, // Glyph SDF distance in screen pixels
@@ -157,7 +162,7 @@ That makes calamity of so long life.`;
 
   // 10000 ought to be enough for anybody
 
-  var vertex_array = new Float32Array((10000 * 6 * attribs[0].stride) / 4);
+  var vertex_array = new Float32Array((10000 * 6 * attribs[0].stride!) / 4);
 
   var vertex_buffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
@@ -167,11 +172,11 @@ That makes calamity of so long life.`;
 
   var prog = createProgram(gl, vertCode, fragCode, attribs);
 
-  var str_res; // Result of a writeString function.
+  var str_res: StringResult; // Result of a writeString function.
   // Contains text bounding rectangle.
 
   var vcount = 0; // Text string vertex count
-  var tex; // Font texture
+  var tex: ImageTexture; // Font texture
 
   var font_hinting = 1.0;
   var subpixel = 1.0;
@@ -192,9 +197,9 @@ That makes calamity of so long life.`;
       if (!font) {
         font = roboto_font;
       }
-      tex = font.tex;
+      tex = font.tex!;
 
-      var font_size = Math.round(font_size_input.value * pixel_ratio);
+      var font_size = Math.round(Number(font_size_input.value) * pixel_ratio);
       var fmetrics = fontMetrics(font, font_size, font_size * 0.2);
 
       // Laying out the text
@@ -205,7 +210,7 @@ That makes calamity of so long life.`;
         [0, 0],
         vertex_array
       );
-      vcount = str_res.array_pos / (attribs[0].stride / 4) /*size of float*/;
+      vcount = str_res.array_pos / (attribs[0].stride! / 4) /*size of float*/;
 
       gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertex_array);
