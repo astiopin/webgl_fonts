@@ -1,14 +1,4 @@
-import roboto_font from "./fonts/roboto";
-import roboto_bold_font from "./fonts/roboto-bold";
-import ubuntu_font from "./fonts/ubuntu";
-import ubuntu_bold_font from "./fonts/ubuntu-bold";
-import dejavu_font from "./fonts/dejavu-serif";
-import dejavu_italic_font from "./fonts/dejavu-serif-italic";
-import sf_mono_font from "./fonts/sf-mono";
-import inter_font from "./fonts/inter";
-import inter_tight_bold_font from "./fonts/inter-tight-bold";
-import { loadTexture, colorFromString } from "./glutils";
-import type { Font } from "./types";
+import { colorFromString, loadFont } from "./glutils";
 import { createRenderer } from "./render";
 import "./style.css";
 
@@ -18,12 +8,15 @@ function update_text() {
   do_update = true;
 }
 
-function glMain() {
+async function glMain() {
   // Initializing input widgets
-
   const fonts_select = document.getElementById("fonts") as HTMLSelectElement;
   fonts_select.addEventListener("input", update_text, false);
-  fonts_select.onchange = update_text;
+  fonts_select.onchange = async () => {
+    const font_name = fonts_select.value;
+    current_font = await loadFont(gl, font_name);
+    update_text();
+  };
 
   const font_size_input = document.getElementById(
     "font_size"
@@ -73,19 +66,6 @@ That makes calamity of so long life.`;
   textarea.addEventListener("input", update_text, false);
   textarea.onchange = update_text;
 
-  const all_fonts: { [key: string]: Font } = {
-    roboto: roboto_font,
-    roboto_bold: roboto_bold_font,
-    ubuntu: ubuntu_font,
-    ubuntu_bold: ubuntu_bold_font,
-    dejavu: dejavu_font,
-    dejavu_italic: dejavu_italic_font,
-    sf_mono: sf_mono_font,
-    inter: inter_font,
-    inter_tight_bold: inter_tight_bold_font,
-  };
-
-
   // GL stuff
   const canvas = document.getElementById("glcanvas") as HTMLCanvasElement;
   const gl = canvas.getContext("webgl2", {
@@ -93,53 +73,11 @@ That makes calamity of so long life.`;
     alpha: false,
   })!;
 
-  // Loading SDF font images. Resulting textures should NOT be mipmapped!
+  const renderer = createRenderer({ gl, canvas });
 
-  roboto_font.tex = loadTexture(gl, "fonts/roboto.png", gl.LUMINANCE, false);
-  roboto_bold_font.tex = loadTexture(
-    gl,
-    "fonts/roboto-bold.png",
-    gl.LUMINANCE,
-    false
-  );
-  ubuntu_font.tex = loadTexture(
-    gl,
-    "fonts/ubuntu.png",
-    gl.LUMINANCE,
-    false,
-    true
-  );
-  ubuntu_bold_font.tex = loadTexture(
-    gl,
-    "fonts/ubuntu-bold.png",
-    gl.LUMINANCE,
-    false
-  );
-  dejavu_font.tex = loadTexture(
-    gl,
-    "fonts/dejavu-serif.png",
-    gl.LUMINANCE,
-    false
-  );
-  dejavu_italic_font.tex = loadTexture(
-    gl,
-    "fonts/dejavu-serif-italic.png",
-    gl.LUMINANCE,
-    false
-  );
-  sf_mono_font.tex = loadTexture(gl, "fonts/sf-mono.png", gl.LUMINANCE, false);
-  inter_font.tex = loadTexture(gl, "fonts/inter.png", gl.LUMINANCE, false);
-  inter_tight_bold_font.tex = loadTexture(
-    gl,
-    "fonts/inter-tight-bold.png",
-    gl.LUMINANCE,
-    false
-  );
-
+  let current_font = await loadFont(gl, "roboto");
   let font_color = [0.1, 0.1, 0.1];
   let bg_color = [0.9, 0.9, 0.9];
-
-  const renderer = createRenderer({ gl, canvas });
 
   function loop() {
     font_color = colorFromString(font_color_input.value, [0.1, 0.1, 0.1]);
@@ -147,7 +85,8 @@ That makes calamity of so long life.`;
 
     renderer.render({
       font_size: Number(font_size_input.value),
-      font: all_fonts[fonts_select.value] ?? roboto_font,
+      font: current_font.font,
+      tex: current_font.tex,
       font_hinting: font_hinting_input.checked ? 1 : 0,
       subpixel: subpixel_input.checked ? 1 : 0,
       text: textarea.value,

@@ -1,4 +1,3 @@
-// function that takes the arguments
 export type RenderOptions = {
   font: Font;
   do_update: boolean;
@@ -8,6 +7,7 @@ export type RenderOptions = {
   subpixel: number;
   font_color: number[];
   bg_color: number[];
+  tex: ImageTexture;
 };
 
 export type Attrib = {
@@ -39,7 +39,6 @@ export type Font = {
   space_advance: number;
   chars: { [key: string]: FontChar };
   kern: { [key: string]: number };
-  tex?: ImageTexture;
 };
 
 export type FontMetrics = {

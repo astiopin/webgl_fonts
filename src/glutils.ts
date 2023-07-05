@@ -227,6 +227,16 @@ export function loadTexture(
   return res;
 }
 
+/**
+* Loading SDF font images. Resulting textures should not be mipmapped.
+*/
+export async function loadFont(gl: WebGL2RenderingContext, name: string, path = "/fonts") {
+  const tex = loadTexture(gl, `${path}/${name}.png`, gl.LUMINANCE, false);
+  const font = await fetch(`${path}/${name}.json`).then((res) => res.json());
+
+  return { tex, font };
+}
+
 export function setTexImage(
   gl: WebGL2RenderingContext,
   image: HTMLImageElement,

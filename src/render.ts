@@ -1,8 +1,8 @@
 import { bindAttribs, createProgram, initAttribs } from "./glutils";
 import { StringResult, fontMetrics, writeString } from "./textutils";
 import { Attrib, RenderOptions, ImageTexture } from "./types";
-import fragCode from "./fshader.frag";
-import vertCode from "./vshader.vert";
+import fragCode from "./shader.frag";
+import vertCode from "./shader.vert";
 
 export function createRenderer({
   canvas,
@@ -36,7 +36,6 @@ export function createRenderer({
   // Contains text bounding rectangle.
 
   let vcount = 0; // Text string vertex count
-  let tex: ImageTexture; // Font texture
 
   const canvas_width = canvas.clientWidth;
   const canvas_height = canvas.clientHeight;
@@ -51,10 +50,9 @@ export function createRenderer({
     bg_color,
     font_hinting,
     subpixel,
+    tex,
   }: RenderOptions) {
     if (do_update) {
-      tex = font.tex!;
-
       const font_size_scaled = Math.round(font_size * pixel_ratio);
       const fmetrics = fontMetrics(
         font,
