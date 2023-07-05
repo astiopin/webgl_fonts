@@ -1,9 +1,13 @@
 // function that takes the arguments
-export type Options = {
-  canvas: HTMLCanvasElement;
+export type RenderOptions = {
+  font: Font;
+  do_update: boolean;
+  font_size: number;
   text: string;
-  x: number;
-  y: number;
+  font_hinting: number;
+  subpixel: number;
+  font_color: number[];
+  bg_color: number[];
 };
 
 export type Attrib = {
