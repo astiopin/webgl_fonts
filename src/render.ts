@@ -1,16 +1,11 @@
 import { bindAttribs, createProgram, initAttribs } from "./glutils";
 import { StringResult, fontMetrics, writeString } from "./textutils";
-import { Attrib, RenderOptions, ImageTexture } from "./types";
+import { Attrib, RenderOptions, ImageTexture, Font } from "./types";
 import fragCode from "./shader.frag";
 import vertCode from "./shader.vert";
 
-export function createRenderer({
-  canvas,
-  gl,
-}: {
-  canvas: HTMLCanvasElement;
-  gl: WebGL2RenderingContext;
-}) {
+export function createRenderer(gl: WebGL2RenderingContext) {
+  const canvas = gl.canvas as HTMLCanvasElement;
   // Vertex attributes
 
   const attribs: Attrib[] = [
@@ -32,53 +27,81 @@ export function createRenderer({
 
   const prog = createProgram(gl, vertCode, fragCode, attribs);
 
-  let str_res: StringResult; // Result of a writeString function.
-  // Contains text bounding rectangle.
+  type Layout = {
+    font: Font;
+    font_size: number;
+    text: string;
+  };
 
-  let vcount = 0; // Text string vertex count
-
-  const canvas_width = canvas.clientWidth;
-  const canvas_height = canvas.clientHeight;
+  // state variables
   let pixel_ratio = window.devicePixelRatio || 1;
+  let str_res: StringResult; // Result of a writeString function, Contains text bounding rectangle.
+  let vcount = 0; // Text string vertex count
+  let canvas_width = canvas.clientWidth;
+  let canvas_height = canvas.clientHeight;
+  let prev_font: Font | null = null;
+  let prev_font_size = -1;
+  let prev_text = "";
+
+  function layout({ font, font_size, text }: Layout) {
+    const font_size_scaled = Math.round(font_size * pixel_ratio);
+    const fmetrics = fontMetrics(
+      font.font_bundle,
+      font_size_scaled,
+      font_size_scaled * 0.2
+    );
+
+    // Laying out the text
+    str_res = writeString(
+      text,
+      font.font_bundle,
+      fmetrics,
+      [0, 0],
+      vertex_array
+    );
+    vcount = str_res.array_pos / (attribs[0].stride! / 4) /*size of float*/;
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertex_array);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  }
 
   function render({
     font,
-    do_update,
     font_size,
     text,
     font_color,
     bg_color,
     font_hinting,
     subpixel,
-    tex,
   }: RenderOptions) {
-    if (do_update) {
-      const font_size_scaled = Math.round(font_size * pixel_ratio);
-      const fmetrics = fontMetrics(
-        font,
-        font_size_scaled,
-        font_size_scaled * 0.2
-      );
-
-      // Laying out the text
-      str_res = writeString(text, font, fmetrics, [0, 0], vertex_array);
-      vcount = str_res.array_pos / (attribs[0].stride! / 4) /*size of float*/;
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
-      gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertex_array);
-      gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-      do_update = false;
-    }
-
     // Setting canvas size considering display DPI
-
     const new_pixel_ratio = window.devicePixelRatio || 1;
 
+    let do_update = false;
     if (pixel_ratio != new_pixel_ratio) {
       do_update = true;
       pixel_ratio = new_pixel_ratio;
     }
+    if (prev_font != font) {
+      do_update = true;
+      prev_font = font;
+    }
+    if (prev_font_size != font_size) {
+      do_update = true;
+      prev_font_size = font_size;
+    }
+    if (prev_text != text) {
+      do_update = true;
+      prev_text = text;
+    }
+
+    if (do_update) {
+      // adjust the layout
+      layout({ font, font_size, text });
+    }
+
+    const tex = font.font_texture;
 
     const cw = Math.round(pixel_ratio * canvas_width * 0.5) * 2.0;
     const ch = Math.round(pixel_ratio * canvas_height * 0.5) * 2.0;
@@ -125,11 +148,11 @@ export function createRenderer({
 
     prog.font_tex.set(0);
     prog.sdf_tex_size.set(tex.image.width, tex.image.height);
-    prog.sdf_border_size.set(font.iy);
+    prog.sdf_border_size.set(font.font_bundle.iy);
     prog.transform.setv(screen_mat);
-    prog.hint_amount.set(font_hinting);
+    prog.hint_amount.set(font_hinting ? 1.0 : 0.0);
     prog.font_color.set(font_color[0], font_color[1], font_color[2], 1.0);
-    prog.subpixel_amount.set(subpixel);
+    prog.subpixel_amount.set(subpixel ? 1.0 : 0.0);
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, tex.id);
@@ -137,7 +160,7 @@ export function createRenderer({
     gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
     bindAttribs(gl, attribs);
 
-    if (subpixel == 1.0) {
+    if (subpixel) {
       // Subpixel antialiasing.
       // Method proposed by Radek Dutkiewicz @oomek
       // Text color goes to constant blend factor and

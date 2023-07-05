@@ -1,13 +1,16 @@
+export type Font = {
+  font_bundle: FontBundle;
+  font_texture: ImageTexture;
+};
+
 export type RenderOptions = {
   font: Font;
-  do_update: boolean;
   font_size: number;
   text: string;
-  font_hinting: number;
-  subpixel: number;
+  font_hinting: boolean;
+  subpixel: boolean;
   font_color: number[];
   bg_color: number[];
-  tex: ImageTexture;
 };
 
 export type Attrib = {
@@ -26,7 +29,7 @@ export type ImageTexture = {
   image: HTMLImageElement;
 };
 
-export type Font = {
+export type FontBundle = {
   ix: number;
   iy: number;
   aspect: number;

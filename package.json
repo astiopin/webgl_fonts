@@ -9,6 +9,9 @@
     "build": "vite build"
   },
   "author": "Anton Stepin <astiopin@gmail.com>",
+  "contributors": [
+    "Máté Homolya <mate.homolya@proton.me>"
+  ],
   "license": "See LICENSE in LICENSE",
   "devDependencies": {
     "vite": "^4.3.9",

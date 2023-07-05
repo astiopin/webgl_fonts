@@ -1,7 +1,7 @@
-import { Font, FontChar, FontMetrics } from "./types";
+import { FontBundle, FontChar, FontMetrics } from "./types";
 
 export function fontMetrics(
-  font: Font,
+  font: FontBundle,
   pixel_size: number,
   more_line_gap = 0.0
 ) {
@@ -31,7 +31,7 @@ export function fontMetrics(
 
 export function charRect(
   pos: number[],
-  font: Font,
+  font: FontBundle,
   font_metrics: FontMetrics,
   font_char: FontChar,
   kern = 0.0
@@ -106,7 +106,7 @@ export type StringResult = {
 
 export function writeString(
   string: string,
-  font: Font,
+  font: FontBundle,
   font_metrics: FontMetrics,
   pos: number[],
   vertex_array: Float32Array,
