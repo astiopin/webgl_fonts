@@ -1,4 +1,4 @@
-var fragCode=`
+var fragCode = `
 /*
  * Copyright (c) 2017 Anton Stepin astiopin@gmail.com
  *
@@ -91,4 +91,4 @@ void main() {
         gl_FragColor = vec4( font_color.rgb, font_color.a * alpha );
     }
 }
-`
+`;
