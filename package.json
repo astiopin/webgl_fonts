@@ -1,9 +1,12 @@
 {
   "name": "webgl-fonts",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "type": "module",
   "description": "Demonstration of a font rendering on the GPU with glyph hinting and subpixel antialiasing.",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite dev",
     "build": "vite build"
