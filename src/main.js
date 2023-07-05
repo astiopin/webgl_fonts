@@ -5,6 +5,8 @@ import ubuntu_bold_font from "./fonts/ubuntu-bold";
 import dejavu_font from "./fonts/dejavu-serif";
 import dejavu_italic_font from "./fonts/dejavu-serif-italic";
 import sf_mono_font from "./fonts/sf-mono";
+import inter_font from "./fonts/inter";
+import inter_tight_bold_font from "./fonts/inter-tight-bold";
 
 import fragCode from "./fshader.frag";
 import vertCode from "./vshader.vert";
@@ -77,6 +79,8 @@ That makes calamity of so long life.`;
     dejavu: dejavu_font,
     dejavu_italic: dejavu_italic_font,
     sf_mono: sf_mono_font,
+    inter: inter_font,
+    inter_tight_bold: inter_tight_bold_font,
   };
 
   var font = all_fonts[fonts_select.value];
@@ -126,6 +130,18 @@ That makes calamity of so long life.`;
   sf_mono_font.tex = loadTexture(
     gl,
     "fonts/sf-mono.png",
+    gl.LUMINANCE,
+    false,
+  );
+  inter_font.tex = loadTexture(
+    gl,
+    "fonts/inter.png",
+    gl.LUMINANCE,
+    false,
+  );
+  inter_tight_bold_font.tex = loadTexture(
+    gl,
+    "fonts/inter-tight-bold.png",
     gl.LUMINANCE,
     false,
   );
