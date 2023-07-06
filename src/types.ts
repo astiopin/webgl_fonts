@@ -1,16 +1,22 @@
 export type Font = {
-  font_bundle: FontBundle;
-  font_texture: ImageTexture;
+  fontBundle: FontBundle;
+  fontTexture: ImageTexture;
 };
 
 export type RenderOptions = {
   font: Font;
-  font_size: number;
+  fontSize: number;
   text: string;
-  font_hinting: boolean;
+  fontHinting: boolean;
   subpixel: boolean;
-  font_color: number[];
-  bg_color: number[];
+  fontColor: number[];
+  backgroundColor: number[];
+  align?: "left" | "center" | "right";
+  baseline?: "top" | "middle" | "bottom";
+  translateX?: number;
+  translateY?: number;
+  alignItems?: "start" | "center" | "end";
+  justifyContent?: "start" | "center" | "end";
 };
 
 export type Attrib = {

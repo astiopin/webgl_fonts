@@ -234,17 +234,17 @@ export async function loadFont(
   name: string,
   path = "/fonts"
 ): Promise<Font> {
-  const font_texture = loadTexture(
+  const fontTexture = loadTexture(
     gl,
     `${path}/${name}.png`,
     gl.LUMINANCE,
     false
   );
-  const font_bundle = await fetch(`${path}/${name}.json`).then((res) =>
+  const fontBundle = await fetch(`${path}/${name}.json`).then((res) =>
     res.json()
   );
 
-  return { font_texture, font_bundle } as Font;
+  return { fontTexture, fontBundle } as Font;
 }
 
 export function setTexImage(

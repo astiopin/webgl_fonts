@@ -21,11 +21,11 @@ export function fontMetrics(
   );
 
   return {
-    cap_scale: cap_scale,
-    low_scale: low_scale,
-    pixel_size: pixel_size,
-    ascent: ascent,
-    line_height: line_height,
+    cap_scale,
+    low_scale,
+    pixel_size,
+    ascent,
+    line_height,
   };
 }
 
@@ -95,7 +95,7 @@ export function charRect(
     scale,
   ];
 
-  return { vertices: vertices, pos: [new_pos_x, pos[1]] };
+  return { vertices, pos: [new_pos_x, pos[1]] };
 }
 
 export type StringResult = {
@@ -114,7 +114,7 @@ export function writeString(
   array_pos = 0
 ): StringResult {
   let prev_char = " "; // Used to calculate kerning
-  let cpos = pos; // Current pen position
+  let cpos = pos.slice(); // Current pen position, copy of pos to avoid modifying original
   let x_max = 0.0; // Max width - used for bounding box
   const scale = font_metrics.cap_scale;
 
@@ -161,7 +161,11 @@ export function writeString(
 
     prev_char = schar;
     cpos = rect.pos;
+    if (cpos[0] > x_max) x_max = cpos[0]; // Expanding the bounding rect at the end of each loop iteration
   }
+
+  // One final check to set x_max to the width of the last line
+  if (cpos[0] > x_max) x_max = cpos[0];
 
   const res = {
     rect: [
@@ -171,7 +175,7 @@ export function writeString(
       pos[1] - cpos[1] + font_metrics.line_height,
     ],
     string_pos: str_pos,
-    array_pos: array_pos,
+    array_pos,
   };
 
   return res;

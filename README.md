@@ -29,14 +29,14 @@ const renderer = createRenderer(gl);
 function loop() {
   renderer.render({
     font,
-    font_size: 32,
+    fontSize: 32,
     text: 'Hello, world!',
-    x: 0,
-    y: 0,
-    font_hinting: true,
+    translateX: 0,
+    translateY: 0,
+    fontHinting: true,
     subpixel: true,
-    font_color: [1, 1, 1, 1],
-    bg_color: [0, 0, 0, 1],
+    fontXolor: [1, 1, 1, 1],
+    backgroundColor: [0, 0, 0, 1],
   });
   requestAnimationFrame(loop);
 }

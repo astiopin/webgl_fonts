@@ -1,3 +1,4 @@
+import { getCanvas } from "./canvas";
 import { colorFromString, loadFont } from "./glutils";
 import { createRenderer } from "./render";
 import "./style.css";
@@ -7,7 +8,7 @@ async function glMain() {
   const fonts_select = document.getElementById("fonts") as HTMLSelectElement;
   fonts_select.onchange = async () => {
     const font_name = fonts_select.value;
-    current_font = await loadFont(gl, font_name);
+    font = await loadFont(gl, font_name);
   };
 
   const font_size_input = document.getElementById(
@@ -47,30 +48,38 @@ Must give us pause. There's the respect
 That makes calamity of so long life.`;
 
   // GL stuff
-  const canvas = document.getElementById("glcanvas") as HTMLCanvasElement;
-  const gl = canvas.getContext("webgl2", {
-    premultipliedAlpha: false,
-    alpha: false,
-  })!;
+  const canvas = getCanvas();
+  const gl = canvas.getContext("webgl2")!;
 
   const renderer = createRenderer(gl);
 
-  let current_font = await loadFont(gl, "roboto");
-  let font_color = [0.1, 0.1, 0.1];
-  let bg_color = [0.9, 0.9, 0.9];
+  let font = await loadFont(gl, "roboto");
+  let fontColor = [0.1, 0.1, 0.1];
+  let backgroundColor = [0.9, 0.9, 0.9];
 
   function loop() {
-    font_color = colorFromString(font_color_input.value, [0.1, 0.1, 0.1]);
-    bg_color = colorFromString(bg_color_input.value, [0.9, 0.9, 0.9]);
+    fontColor = colorFromString(font_color_input.value, [0.1, 0.1, 0.1]);
+    backgroundColor = colorFromString(bg_color_input.value, [0.9, 0.9, 0.9]);
+
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+    gl.clearColor(
+      backgroundColor[0],
+      backgroundColor[1],
+      backgroundColor[2],
+      1
+    );
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
     renderer.render({
-      font_size: Number(font_size_input.value),
-      font: current_font,
-      font_hinting: font_hinting_input.checked,
+      fontSize: Number(font_size_input.value),
+      font,
+      fontHinting: font_hinting_input.checked,
       subpixel: subpixel_input.checked,
       text: textarea.value,
-      font_color,
-      bg_color,
+      fontColor,
+      backgroundColor,
+      alignItems: "center",
+      align: "center",
     });
 
     requestAnimationFrame(loop);
