@@ -4,7 +4,7 @@ export function getCanvas() {
   function onResize() {
     console.log("onResize");
     const dppx = window.devicePixelRatio;
-    const width = 700 * dppx;
+    const width = Math.min(700, window.innerWidth - 16) * dppx;
     const height = 400 * dppx;
     canvas.width = width;
     canvas.height = height;

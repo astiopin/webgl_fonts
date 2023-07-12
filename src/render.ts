@@ -37,11 +37,11 @@ export function createRenderer(gl: WebGL2RenderingContext) {
   let pixel_ratio = window.devicePixelRatio || 1;
   let str_res: StringResult; // Result of a writeString function, Contains text bounding rectangle.
   let vcount = 0; // Text string vertex count
-  let canvas_width = canvas.clientWidth;
-  let canvas_height = canvas.clientHeight;
+
   let prev_font: Font | null = null;
   let prev_font_size = -1;
   let prev_text = "";
+  let prev_resolution = [0, 0];
 
   function layout({ font, font_size, text }: Layout) {
     const font_size_scaled = Math.round(font_size * pixel_ratio);
@@ -83,6 +83,8 @@ export function createRenderer(gl: WebGL2RenderingContext) {
   }: RenderOptions) {
     // Setting canvas size considering display DPI
     const new_pixel_ratio = window.devicePixelRatio || 1;
+    const canvas_width = canvas.clientWidth;
+    const canvas_height = canvas.clientHeight;
 
     let do_update = false;
     if (pixel_ratio != new_pixel_ratio) {
@@ -100,6 +102,14 @@ export function createRenderer(gl: WebGL2RenderingContext) {
     if (prev_text != text) {
       do_update = true;
       prev_text = text;
+    }
+    if (
+      prev_resolution[0] != canvas_width ||
+      prev_resolution[1] != canvas_height
+    ) {
+      do_update = true;
+      prev_resolution[0] = canvas_width;
+      prev_resolution[1] = canvas_height;
     }
 
     if (do_update) {
