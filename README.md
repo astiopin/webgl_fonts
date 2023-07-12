@@ -15,10 +15,7 @@ import { createRenderer, loadFont } from 'webgl-fonts';
 
 // create a WebGL2 context
 const canvas = document.getElementById('canvas');
-const gl = canvas.getContext('webgl2', {
-  premultipliedAlpha: false,
-  alpha: false,
-});
+const gl = canvas.getContext('webgl2');
 
 // thiis will load json and png files from 
 // public/fonts/roboto.json and public/fonts/roboto.png
@@ -35,7 +32,7 @@ function loop() {
     translateY: 0,
     fontHinting: true,
     subpixel: true,
-    fontXolor: [1, 1, 1, 1],
+    fontColor: [1, 1, 1, 1],
     backgroundColor: [0, 0, 0, 1],
   });
   requestAnimationFrame(loop);
