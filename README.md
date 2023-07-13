@@ -1,6 +1,7 @@
 # WebGL Font Rendering
 
-Crisp font rendering on the GPU with glyph hinting and subpixel antialiasing. No external dependencies, very small (3.8kb gzipped).
+Crisp font rendering on the GPU with glyph hinting and subpixel antialiasing. No external dependencies, very small:  
+https://bundlephobia.com/package/webgl-fonts@1.2.2
 
 ## Usage
 
