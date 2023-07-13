@@ -1,9 +1,13 @@
 {
   "name": "webgl-fonts",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "type": "module",
-  "description": "Demonstration of a font rendering on the GPU with glyph hinting and subpixel antialiasing.",
+  "description": "Crisp WebGL font rendering on the GPU with glyph hinting and subpixel antialiasing.",
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://github.com/mate-h/webgl-fonts.git"
+  },
   "files": [
     "dist"
   ],
@@ -15,7 +19,7 @@
   "contributors": [
     "Máté Homolya <mate.homolya@proton.me>"
   ],
-  "license": "See LICENSE in LICENSE",
+  "license": "MIT",
   "devDependencies": {
     "vite": "^4.3.9",
     "vite-plugin-dts": "^3.0.3",
